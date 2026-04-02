@@ -65,33 +65,25 @@
                       </div>
                     </div>
                     <div class="mt-3 mb-4 mt-md-4 mb-md-5" data-bs-theme="light">
-                      <p class="text-white">Don't have an account?<br><a class="text-decoration-underline link-light" href="/register">Register</a></p>
-                      <p class="mb-0 mt-4 mt-md-5 fs-10 fw-semi-bold text-white opacity-75">Read our <a class="text-decoration-underline text-white" href="#!">terms</a> and <a class="text-decoration-underline text-white" href="#!">conditions </a></p>
+                      <p class="pt-3 text-white">Have an account?<br><a class="btn btn-outline-light mt-2 px-4" href="/">Log In</a></p>
                     </div>
                   </div>
                   <div class="col-md-7 d-flex flex-center">
                     <div class="p-4 p-md-5 flex-grow-1">
-                      <div class="row flex-between-center">
-                        <div class="col-auto">
-                          <h3>Account Login</h3>
-                        </div>
-                      </div>
+                      <h3>Register</h3>
                       <form>
-                        <div class="mb-3"><label class="form-label" for="card-email">Email address</label><input class="form-control" id="card-email" type="email" /></div>
-                        <div class="mb-3">
-                          <div class="d-flex justify-content-between"><label class="form-label" for="card-password">Password</label></div><input class="form-control" id="card-password" type="password" />
+                        <div class="mb-3"><label class="form-label" for="card-name">Name</label><input class="form-control" type="text" autocomplete="on" id="card-name" /></div>
+                        <div class="mb-3"><label class="form-label" for="card-email">Email address</label><input class="form-control" type="email" autocomplete="on" id="card-email" /></div>
+                        <div class="row gx-2">
+                          <div class="mb-3 col-sm-6"><label class="form-label" for="card-password">Password</label><input class="form-control" type="password" autocomplete="on" id="card-password" /></div>
+                          <div class="mb-3 col-sm-6"><label class="form-label" for="card-confirm-password">Confirm Password</label><input class="form-control" type="password" autocomplete="on" id="card-confirm-password" /></div>
                         </div>
-                        <div class="row flex-between-center">
-                          <div class="col-auto">
-                            <div class="form-check mb-0"><input class="form-check-input" type="checkbox" id="card-checkbox" checked="checked" /><label class="form-check-label mb-0" for="card-checkbox">Remember me</label></div>
-                          </div>
-                          <div class="col-auto"><a class="fs-10" href="forgot-password.html">Forgot Password?</a></div>
-                        </div>
-                        <div class="mb-3"><button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">Log in</button></div>
+                        <div class="form-check"><input class="form-check-input" type="checkbox" id="card-register-checkbox" /><label class="form-label" for="card-register-checkbox">I accept the <a href="#!">terms </a>and <a class="white-space-nowrap" href="#!">privacy policy</a></label></div>
+                        <div class="mb-3"><button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">Register</button></div>
                       </form>
                       <div class="position-relative mt-4">
                         <hr />
-                        <div class="divider-content-center">or log in with</div>
+                        <div class="divider-content-center">or register with</div>
                       </div>
                       <div class="row g-2 mt-2">
                         <div class="col-sm-6"><a class="btn btn-outline-google-plus btn-sm d-block w-100" href="#"><span class="fab fa-google-plus-g me-2" data-fa-transform="grow-8"></span> google</a></div>
@@ -105,8 +97,8 @@
           </div>
         </div>
       </div>
-    </main>
-    <!-- ===============================================--><!--    End of Main Content--><!-- ===============================================-->
+    </main><!-- ===============================================--><!--    End of Main Content--><!-- ===============================================-->
+
     <div class="offcanvas offcanvas-end settings-panel border-0" id="settings-offcanvas" tabindex="-1" aria-labelledby="settings-offcanvas">
       <div class="offcanvas-header settings-panel-header justify-content-between bg-shape">
         <div class="z-1 py-1">
@@ -184,6 +176,7 @@
         </div><small class="text-uppercase text-primary fw-bold bg-primary-subtle py-2 pe-2 ps-1 rounded-end">customize</small>
       </div>
     </a>
+
     <!-- ===============================================--><!--    JavaScripts--><!-- ===============================================-->
     <script src="../../../vendors/popper/popper.min.js"></script>
     <script src="../../../vendors/bootstrap/bootstrap.min.js"></script>
