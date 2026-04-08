@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,37 +10,63 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    protected $table = 'users'; // ✅ pastikan tabel
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role',
+        'status'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => 'string',
+            'status' => 'string',
         ];
+    }
+
+    // 🔹 Relasi kendaraan
+    public function kendaraan()
+    {
+        return $this->hasMany(\App\Models\Kendaraan::class, 'id_user');
+    }
+
+    // 🔹 Relasi transaksi
+    public function transaksi()
+    {
+        return $this->hasMany(\App\Models\Transaksi::class, 'id_user');
+    }
+
+    // 🔹 Relasi log aktivitas
+    public function logAktivitas()
+    {
+        return $this->hasMany(\App\Models\LogAktivitas::class, 'id_user');
+    }
+
+    // 🔥 Helper role
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isPetugas()
+    {
+        return $this->role === 'petugas';
+    }
+
+    public function isOwner()
+    {
+        return $this->role === 'owner';
     }
 }

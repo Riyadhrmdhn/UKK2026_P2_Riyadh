@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- ===============================================--><!--    Document Title--><!-- ===============================================-->
-    <title>UKK2026|Riyadh</title>
+    <title>Riyadh | Login &amp; Web App Template</title>
 
     <!-- ===============================================--><!--    Favicons--><!-- ===============================================-->
     <link rel="apple-touch-icon" sizes="180x180" href="../../../assets/img/favicons/apple-touch-icon.png">
@@ -50,8 +50,11 @@
 
   <body>
     <!-- ===============================================--><!--    Main Content--><!-- ===============================================-->
-
+    <main class="main" id="top">
+        @yield('form')
+    </main>
     <!-- ===============================================--><!--    End of Main Content--><!-- ===============================================-->
+
     <div class="offcanvas offcanvas-end settings-panel border-0" id="settings-offcanvas" tabindex="-1" aria-labelledby="settings-offcanvas">
       <div class="offcanvas-header settings-panel-header justify-content-between bg-shape">
         <div class="z-1 py-1">
@@ -129,6 +132,7 @@
         </div><small class="text-uppercase text-primary fw-bold bg-primary-subtle py-2 pe-2 ps-1 rounded-end">customize</small>
       </div>
     </a>
+
     <!-- ===============================================--><!--    JavaScripts--><!-- ===============================================-->
     <script src="../../../vendors/popper/popper.min.js"></script>
     <script src="../../../vendors/bootstrap/bootstrap.min.js"></script>
@@ -139,4 +143,7 @@
     <script src="../../../vendors/list.js/list.min.js"></script>
     <script src="../../../assets/js/theme.js"></script>
   </body>
+
+
+<!-- Mirrored from prium.github.io/falcon/v3.26.0/pages/authentication/card/login.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 14 Jan 2026 01:32:42 GMT -->
 </html>
