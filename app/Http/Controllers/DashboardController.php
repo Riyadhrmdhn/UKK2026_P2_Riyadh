@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $masukHariIni = Transaksi::whereDate('waktu_masuk', $today)->count();
         $keluarHariIni = Transaksi::whereDate('waktu_keluar', $today)->count();
 
-        return view('dashboard', compact(
+        return view('main.admin', compact(
             'totalUser',
             'totalKendaraan',
             'masukHariIni',

@@ -21,5 +21,16 @@ Route::post('/register', [AuthController::class, 'register'])->name('register.po
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard')
     ->middleware('auth');
+// 🔹 USER
+
+Route::prefix('user')->group(function () {
+    Route::get('/', [UserController::class, 'index'])->name('user.index');
+    Route::get('/create', [UserController::class, 'create'])->name('user.create');
+    Route::post('/store', [UserController::class, 'store'])->name('user.store');
+    Route::get('/edit/{id}', [UserController::class, 'edit'])->name('user.edit');
+    Route::put('/update/{id}', [UserController::class, 'update'])->name('user.update');
+    Route::delete('/delete/{id}', [UserController::class, 'destroy'])->name('user.destroy');
+});
+    
 // 🔹 LOGOUT
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
