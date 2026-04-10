@@ -8,17 +8,20 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // 🔹 Tampilkan semua user
+    // 🔹 Tampilkan semua user (URUTAN FIX)
     public function index()
     {
-        $users = User::latest()->get();
-        return view('user.index', compact('users'));
+        $users = User::orderByRaw("
+            FIELD(role, 'admin', 'petugas', 'owner')
+        ")->get();
+
+        return view('people.index', compact('users'));
     }
 
     // 🔹 Form tambah user
     public function create()
     {
-        return view('user.create');
+        return view('people.create');
     }
 
     // 🔹 Simpan user
@@ -40,7 +43,7 @@ class UserController extends Controller
             'status'   => $request->status
         ]);
 
-        return redirect()->route('user.index')
+        return redirect()->route('people.index')
             ->with('success', 'User berhasil ditambahkan');
     }
 
@@ -48,7 +51,7 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        return view('user.edit', compact('user'));
+        return view('people.edit', compact('user'));
     }
 
     // 🔹 Update user
@@ -77,16 +80,23 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('user.index')
+        return redirect()->route('people.index')
             ->with('success', 'User berhasil diupdate');
     }
 
     // 🔹 Hapus user
     public function destroy($id)
     {
-        User::findOrFail($id)->delete();
+        $user = User::findOrFail($id);
 
-        return redirect()->route('user.index')
+        // ❗ optional: cegah hapus diri sendiri
+        if ($user->id == auth()->id()) {
+            return back()->with('error', 'Tidak bisa hapus akun sendiri');
+        }
+
+        $user->delete();
+
+        return redirect()->route('people.index')
             ->with('success', 'User berhasil dihapus');
     }
 }

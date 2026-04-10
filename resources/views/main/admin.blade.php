@@ -47,7 +47,7 @@
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="mb-2">Masuk Hari Ini</h6>
-                            <h3 class="mb-0">{{ $masukHariIni }}</h3>
+                            <h3 class="mb-0">{{ $masuk }}</h3>
                             <small class="text-500">Dari waktu_masuk</small>
                         </div>
                         <div>
@@ -63,7 +63,7 @@
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="mb-2">Keluar Hari Ini</h6>
-                            <h3 class="mb-0">{{ $keluarHariIni }}</h3>
+                            <h3 class="mb-0">{{ $keluar }}</h3>
                             <small class="text-500">Dari waktu_keluar</small>
                         </div>
                         <div>

@@ -12,7 +12,7 @@ class Kendaraan extends Model
     protected $table = 't_kendaraan';
     protected $primaryKey = 'id';
 
-    public $timestamps = false; // karena hanya ada created_at
+    public $timestamps = false;
 
     protected $fillable = [
         'plat_kendaraan',
@@ -23,29 +23,12 @@ class Kendaraan extends Model
         'created_at'
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'status' => 'string',
-            'created_at' => 'datetime',
-        ];
-    }
+    protected $attributes = [
+        'status' => null, // 🔥 default NULL
+    ];
 
-    // 🔹 Relasi ke user
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'id_user');
-    }
-
-    // 🔹 Relasi ke tarif
     public function tarif()
     {
         return $this->belongsTo(Tarif::class, 'id_tarif');
-    }
-
-    // 🔹 Relasi ke transaksi
-    public function transaksi()
-    {
-        return $this->hasMany(Transaksi::class, 'id_kendaraan');
     }
 }
