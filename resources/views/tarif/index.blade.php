@@ -40,13 +40,13 @@
                         <button class="btn btn-warning btn-sm"
                                 data-bs-toggle="modal"
                                 data-bs-target="#edit{{ $t->id }}">
-                                <i class="bi bi-pencil"></i>
+                            <i class="bi bi-pencil"></i>
                         </button>
 
                         <button class="btn btn-danger btn-sm"
                                 data-bs-toggle="modal"
                                 data-bs-target="#hapus{{ $t->id }}">
-                                <i class="bi bi-trash"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>
@@ -65,10 +65,13 @@
 
                                 <div class="modal-body">
 
-                                    <select name="jenis_kendaraan" class="form-control mb-2" required>
-                                        <option value="Motor" {{ $t->jenis_kendaraan == 'Motor' ? 'selected' : '' }}>Motor</option>
-                                        <option value="Mobil" {{ $t->jenis_kendaraan == 'Mobil' ? 'selected' : '' }}>Mobil</option>
-                                    </select>
+                                    <!-- 🔥 DIUBAH JADI INPUT TEXT -->
+                                    <input type="text"
+                                           name="jenis_kendaraan"
+                                           class="form-control mb-2"
+                                           value="{{ $t->jenis_kendaraan }}"
+                                           placeholder="Contoh: Motor / Mobil / Truk"
+                                           required>
 
                                     <input type="number"
                                            name="tarif_per_jam"
@@ -129,18 +132,19 @@
 
                 <div class="modal-body">
 
-                    <select name="jenis_kendaraan" class="form-control mb-2" required>
-                        <option value="">-- Pilih Kendaraan --</option>
-                        <option value="Motor">Motor</option>
-                        <option value="Mobil">Mobil</option>
-                    </select>
+                    <!-- 🔥 DIUBAH JADI INPUT TEXT -->
+                    <input type="text"
+                        name="jenis_kendaraan"
+                        class="form-control mb-2"
+                        placeholder="Contoh: Motor / Mobil / Truk"
+                        required>
 
                     <input type="number"
-                           name="tarif_per_jam"
-                           class="form-control"
-                           min="100"
-                           placeholder="Minimal 100"
-                           required>
+                        name="tarif_per_jam"
+                        class="form-control"
+                        min="100"
+                        placeholder="Minimal 100"
+                        required>
 
                 </div>
 
