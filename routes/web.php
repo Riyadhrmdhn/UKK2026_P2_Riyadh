@@ -56,5 +56,6 @@ Route::prefix('kendaraan')->group(function () {
     Route::post('/area', [AreaController::class, 'store'])->name('area.store');
     Route::put('/area/{id}', [AreaController::class, 'update'])->name('area.update');
     Route::delete('/area/{id}', [AreaController::class, 'destroy'])->name('area.destroy');
+    
 // 🔹 LOGOUT
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

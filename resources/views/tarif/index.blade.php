@@ -95,24 +95,40 @@
                 </div>
 
                 <!-- MODAL HAPUS -->
-                <div class="modal fade" id="hapus{{ $t->id }}">
+                <div class="modal fade" id="hapus{{ $t->id }}" 
+                    tabindex="-1" 
+                    aria-hidden="true">
+
                     <div class="modal-dialog modal-dialog-centered">
-                        <form action="{{ route('tarif.destroy', $t->id) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
+                        <div class="modal-content">
 
-                            <div class="modal-content">
-                                <div class="modal-body text-center">
-                                    <h5>Yakin hapus?</h5>
-                                    <b>{{ $t->jenis_kendaraan }}</b>
+                            <form action="{{ route('tarif.destroy', $t->id) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
 
-                                    <br><br>
+                                <div class="modal-body text-center p-4">
+                                    <i class="bi bi-exclamation-triangle text-danger fs-1"></i>
 
-                                    <button class="btn btn-danger">Hapus</button>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <h5 class="mt-3">Yakin ingin menghapus?</h5>
+                                    <p class="mb-3"><strong>{{ $t->jenis_kendaraan }}</strong></p>
+
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <button type="button" 
+                                                class="btn btn-secondary"
+                                                data-bs-dismiss="modal">
+                                            Batal
+                                        </button>
+
+                                        <button type="submit" 
+                                                class="btn btn-danger">
+                                            Hapus
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        </form>
+
+                            </form>
+
+                        </div>
                     </div>
                 </div>
 
@@ -162,26 +178,43 @@
 {{-- SCRIPT PRINT --}}
 <script>
 function printTable(id) {
-    let content = document.getElementById(id).outerHTML;
+    let table = document.getElementById(id).cloneNode(true);
+    let headers = table.querySelectorAll("thead th");
+    let aksiIndex = -1;
+
+    headers.forEach((th, index) => {
+        if (th.innerText.trim().toLowerCase() === 'aksi') {
+            aksiIndex = index;
+        }
+    });
+
+    if (aksiIndex !== -1) {
+        table.querySelectorAll("tr").forEach(row => {
+            if (row.cells.length > aksiIndex) {
+                row.deleteCell(aksiIndex);
+            }
+        });
+    }
 
     let win = window.open('', '', 'width=900,height=700');
     win.document.write(`
         <html>
         <head>
-            <title>Print Tarif</title>
+            <title>Print Data User</title>
             <style>
+                body { font-family: Arial; }
                 table { width:100%; border-collapse: collapse; }
                 table, th, td { border:1px solid black; }
                 th, td { padding:8px; }
+                h3 { text-align:center; }
             </style>
         </head>
         <body>
-            <h3>Data Tarif Parkir</h3>
-            ${content}
+            <h3>Data User</h3>
+            ${table.outerHTML}
         </body>
         </html>
     `);
-
     win.document.close();
     win.print();
 }

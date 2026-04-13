@@ -9,88 +9,148 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
-    {
-        $users = User::orderByRaw("FIELD(role,'admin','petugas','owner')")->get();
+public function index()
+{
+    $users = User::all();
 
-        // SHIFT LOGIC
-        $petugas = $users->where('role', 'petugas')->values();
-        $now = now()->format('H');
+    $admin = $users->where('role', 'admin')->values();
+    $petugas = $users->where('role', 'petugas')->values();
+    $owner = $users->where('role', 'owner')->values();
 
-        if ($now >= 0 && $now < 8) {
-            $shiftAktif = 0;
-        } elseif ($now >= 8 && $now < 16) {
-            $shiftAktif = 1;
-        } else {
-            $shiftAktif = 2;
-        }
+    $hour = now()->format('H');
 
-        foreach ($petugas as $i => $p) {
-            $p->shift_status = ($i % 3 == $shiftAktif) ? 'aktif' : 'off';
-        }
-
-        return view('people.index', compact('users'));
+    if ($hour >= 6 && $hour < 14) {
+        $shiftAktif = 0;
+    } elseif ($hour >= 14 && $hour < 22) {
+        $shiftAktif = 1;
+    } else {
+        $shiftAktif = 2;
     }
+
+    return view('people.index', compact(
+        'users',
+        'admin',
+        'petugas',
+        'owner',
+        'shiftAktif'
+    ));
+}
 
     // ================== TAMBAH USER ==================
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name'     => 'required',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-            'role'     => 'required',
-            'status'   => 'required'
-        ]);
+public function store(Request $request)
+{
+    $request->validate([
+        'name'         => 'required',
+        'email'        => 'required|email|unique:users,email',
+        'password'     => 'required|min:6',
+        'role'         => 'required',
+        'shift'        => 'nullable',
+        'status_kerja' => 'required'
+    ]);
 
-        $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'role'     => $request->role,
-            'status'   => $request->status
-        ]);
+    $shift = null;
+    $status_shift = 'aktif';
 
-        // 🔥 SIMPAN LOG
-        LogAktivitas::create([
-            'id_user' => auth()->id(),
-            'aktivitas' => 'Menambahkan user: ' . $user->name,
-            'waktu_aktivitas' => now()
-        ]);
+    if ($request->role === 'petugas') {
 
-        return back()->with('success', 'User berhasil ditambahkan');
-    }
-
-    // ================== UPDATE USER ==================
-    public function update(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-
-        $request->validate([
-            'name'   => 'required',
-            'email'  => 'required|email',
-            'status' => 'required'
-        ]);
-
-        $user->name   = $request->name;
-        $user->email  = $request->email;
-        $user->status = $request->status;
-
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
+        if (!$request->shift) {
+            return back()->with('error', 'Shift wajib dipilih untuk petugas');
         }
 
-        $user->save();
+        $shift = $request->shift;
+        $hour  = now()->format('H');
 
-        // 🔥 SIMPAN LOG
-        LogAktivitas::create([
-            'id_user' => auth()->id(),
-            'aktivitas' => 'Mengedit user: ' . $user->name,
-            'waktu_aktivitas' => now()
-        ]);
+        if ($hour >= 6 && $hour < 14) {
+            $shiftSekarang = 'pagi';
+        } elseif ($hour >= 14 && $hour < 22) {
+            $shiftSekarang = 'siang';
+        } else {
+            $shiftSekarang = 'malam';
+        }
 
-        return redirect()->route('people.index')->with('success', 'User berhasil diupdate');
+        $status_shift = ($shift === $shiftSekarang) ? 'aktif' : 'nonaktif';
     }
+
+    // 🔥 STATUS FINAL = GABUNGAN
+    $status_final = ($status_shift === 'aktif' && $request->status_kerja === 'aktif')
+                    ? 'aktif'
+                    : 'nonaktif';
+
+    $user = User::create([
+        'name'         => $request->name,
+        'email'        => $request->email,
+        'password'     => Hash::make($request->password),
+        'role'         => $request->role,
+        'shift'        => $shift,
+        'status'       => $status_final,
+        'status_kerja' => $request->status_kerja
+    ]);
+
+    LogAktivitas::create([
+        'id_user' => auth()->id(),
+        'aktivitas' => 'Menambahkan user: ' . $user->name,
+        'waktu_aktivitas' => now()
+    ]);
+
+    return back()->with('success', 'User berhasil ditambahkan');
+}
+    // ================== UPDATE USER ==================
+public function update(Request $request, $id)
+{
+    $user = User::findOrFail($id);
+
+    $request->validate([
+        'name'         => 'required',
+        'email'        => 'required|email',
+        'role'         => 'required',
+        'shift'        => 'nullable',
+        'status_kerja' => 'required'
+    ]);
+
+    $shift = null;
+    $status_shift = 'aktif';
+
+    if ($request->role === 'petugas') {
+
+        $shift = $request->shift;
+        $hour  = now()->format('H');
+
+        if ($hour >= 6 && $hour < 14) {
+            $shiftSekarang = 'pagi';
+        } elseif ($hour >= 14 && $hour < 22) {
+            $shiftSekarang = 'siang';
+        } else {
+            $shiftSekarang = 'malam';
+        }
+
+        $status_shift = ($shift === $shiftSekarang) ? 'aktif' : 'nonaktif';
+    }
+
+    $status_final = ($status_shift === 'aktif' && $request->status_kerja === 'aktif')
+                    ? 'aktif'
+                    : 'nonaktif';
+
+    $user->update([
+        'name'         => $request->name,
+        'email'        => $request->email,
+        'role'         => $request->role,
+        'shift'        => $shift,
+        'status'       => $status_final,
+        'status_kerja' => $request->status_kerja,
+        'password'     => $request->filled('password')
+                            ? Hash::make($request->password)
+                            : $user->password
+    ]);
+
+    LogAktivitas::create([
+        'id_user' => auth()->id(),
+        'aktivitas' => 'Mengedit user: ' . $user->name,
+        'waktu_aktivitas' => now()
+    ]);
+
+    return redirect()->route('people.index')
+            ->with('success', 'User berhasil diupdate');
+}
 
     // ================== HAPUS USER ==================
     public function destroy($id)

@@ -10,7 +10,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $table = 'users'; // ✅ pastikan tabel
+    protected $table = 'users';
     protected $primaryKey = 'id';
 
     protected $fillable = [
@@ -18,6 +18,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'shift',   // 🔥 FIX: tambahkan shift
         'status'
     ];
 
@@ -32,6 +33,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => 'string',
+            'shift' => 'string',   // 🔥 tambahkan cast
             'status' => 'string',
         ];
     }
@@ -68,10 +70,5 @@ class User extends Authenticatable
     public function isOwner()
     {
         return $this->role === 'owner';
-    }
-
-    public function shifts()
-    {
-        return $this->hasMany(Shift::class);
     }
 }
