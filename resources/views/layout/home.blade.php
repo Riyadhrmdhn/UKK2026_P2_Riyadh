@@ -369,7 +369,14 @@
                       <a class="dropdown-item" href="#!">Feedback</a>
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item" href="pages/user/settings.html">Settings</a>
-                      <a class="dropdown-item" href="pages/authentication/card/logout.html">Logout</a>
+                      <a class="dropdown-item" href="#"
+                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        Logout
+                      </a>
+
+                      <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
+                          @csrf
+                      </form>
                     </div>
                   </div>
                 </li>
@@ -564,7 +571,7 @@
 
                 <!-- USER -->
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('user.index') }}">
+                    <a class="nav-link" href="{{ route('people.index') }}">
                     <div class="d-flex align-items-center">
                         <span class="nav-link-icon"><i class="bi bi-people"></i></span>
                         <span class="nav-link-text ps-2">Kelola User</span>
@@ -604,7 +611,7 @@
 
                 <!-- LOG -->
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{{ route('log.index') }}">
                     <div class="d-flex align-items-center">
                         <span class="nav-link-icon"><i class="bi bi-clock-history"></i></span>
                         <span class="nav-link-text ps-2">Log Aktivitas</span>
@@ -980,7 +987,14 @@
                   <a class="dropdown-item" href="#!">Feedback</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="pages/user/settings.html">Settings</a>
-                  <a class="dropdown-item" href="pages/authentication/card/logout.html">Logout</a>
+                  <a class="dropdown-item" href="#"
+                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    Logout
+                  </a>
+
+                  <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
+                      @csrf
+                  </form>
                 </div>
               </div>
             </li>
@@ -1293,7 +1307,14 @@
                     <a class="dropdown-item" href="#!">Feedback</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="pages/user/settings.html">Settings</a>
-                    <a class="dropdown-item" href="pages/authentication/card/logout.html">Logout</a>
+                    <a class="dropdown-item" href="#"
+                      onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                      Logout
+                    </a>
+
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
+                        @csrf
+                    </form>
                   </div>
                 </div>
               </li>
@@ -1663,7 +1684,14 @@
                     <a class="dropdown-item" href="#!">Feedback</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="pages/user/settings.html">Settings</a>
-                    <a class="dropdown-item" href="pages/authentication/card/logout.html">Logout</a>
+                   <a class="dropdown-item" href="#"
+                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    Logout
+                  </a>
+
+                  <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
+                      @csrf
+                  </form>
                   </div>
                 </div>
               </li>

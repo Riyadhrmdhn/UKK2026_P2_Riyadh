@@ -40,7 +40,27 @@ class AuthController extends Controller
             return back()->with('error', 'Password salah');
         }
 
-        // ✅ Login manual
+        // 🔥 CEK SHIFT KHUSUS PETUGAS
+        if ($user->role === 'petugas') {
+
+            $hour = now()->format('H');
+
+            // 🔥 SHIFT REAL (06-14, 14-22, 22-06)
+            if ($hour >= 6 && $hour < 14) {
+                $shiftAktif = 0; // pagi
+            } elseif ($hour >= 14 && $hour < 22) {
+                $shiftAktif = 1; // siang
+            } else {
+                $shiftAktif = 2; // malam
+            }
+
+            // ❌ kalau shift tidak sesuai
+            if ($user->shift != $shiftAktif) {
+                return back()->with('error', 'Shift anda sedang OFF');
+            }
+        }
+
+        // ✅ Login
         Auth::login($user);
 
         // 🔥 Redirect berdasarkan role
@@ -72,8 +92,9 @@ class AuthController extends Controller
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => 'petugas', // default
-            'status'   => 'aktif'    // default
+            'role'     => 'petugas',
+            'status'   => 'aktif',
+            'shift'    => 0 // default pagi
         ]);
 
         return redirect('/login')->with('success', 'Register berhasil');

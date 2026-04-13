@@ -6,9 +6,19 @@
     <div class="card-header d-flex justify-content-between">
         <h5>Data Kendaraan</h5>
 
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambah">
-            Tambah Kendaraan
-        </button>
+        <div>
+            <!-- PRINT -->
+            <button onclick="printTable('kendaraanTable')" class="btn btn-success me-2">
+                <i class="bi bi-printer"></i>
+            </button>
+
+            <!-- TAMBAH -->
+            <button class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalTambah">
+                <i class="bi bi-plus-circle"></i>
+            </button>
+        </div>
     </div>
 
     <div class="card-body">
@@ -17,7 +27,8 @@
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
 
-        <table class="table table-bordered">
+        <!-- TABLE -->
+        <table class="table table-bordered" id="kendaraanTable">
             <thead>
                 <tr>
                     <th>No</th>
@@ -33,17 +44,12 @@
                 @foreach($kendaraan as $k)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-
                     <td>{{ $k->plat_kendaraan }}</td>
-
                     <td>{{ $k->warna }}</td>
-
                     <td>{{ optional($k->tarif)->jenis_kendaraan ?? '-' }}</td>
-
                     <td>
                         Rp {{ number_format(optional($k->tarif)->tarif_per_jam ?? 0, 0, ',', '.') }}
                     </td>
-
                     <td>
                         <button class="btn btn-warning btn-sm"
                                 data-bs-toggle="modal"
@@ -176,5 +182,33 @@
         </form>
     </div>
 </div>
+
+{{-- SCRIPT PRINT --}}
+<script>
+function printTable(id) {
+    let content = document.getElementById(id).outerHTML;
+
+    let win = window.open('', '', 'width=900,height=700');
+    win.document.write(`
+        <html>
+        <head>
+            <title>Print Kendaraan</title>
+            <style>
+                table { width:100%; border-collapse: collapse; }
+                table, th, td { border:1px solid black; }
+                th, td { padding:8px; }
+            </style>
+        </head>
+        <body>
+            <h3>Data Kendaraan</h3>
+            ${content}
+        </body>
+        </html>
+    `);
+
+    win.document.close();
+    win.print();
+}
+</script>
 
 @endsection

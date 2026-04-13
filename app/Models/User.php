@@ -69,4 +69,9 @@ class User extends Authenticatable
     {
         return $this->role === 'owner';
     }
+
+    public function shifts()
+    {
+        return $this->hasMany(Shift::class);
+    }
 }

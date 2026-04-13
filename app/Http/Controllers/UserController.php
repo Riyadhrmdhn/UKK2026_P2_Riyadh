@@ -4,38 +4,46 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\LogAktivitas; // 🔥 WAJIB TAMBAH
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // 🔹 Tampilkan semua user (URUTAN FIX)
     public function index()
     {
-        $users = User::orderByRaw("
-            FIELD(role, 'admin', 'petugas', 'owner')
-        ")->get();
+        $users = User::orderByRaw("FIELD(role,'admin','petugas','owner')")->get();
+
+        // SHIFT LOGIC
+        $petugas = $users->where('role', 'petugas')->values();
+        $now = now()->format('H');
+
+        if ($now >= 0 && $now < 8) {
+            $shiftAktif = 0;
+        } elseif ($now >= 8 && $now < 16) {
+            $shiftAktif = 1;
+        } else {
+            $shiftAktif = 2;
+        }
+
+        foreach ($petugas as $i => $p) {
+            $p->shift_status = ($i % 3 == $shiftAktif) ? 'aktif' : 'off';
+        }
 
         return view('people.index', compact('users'));
     }
 
-    // 🔹 Form tambah user
-    public function create()
-    {
-        return view('people.create');
-    }
-
-    // 🔹 Simpan user
+    // ================== TAMBAH USER ==================
     public function store(Request $request)
     {
         $request->validate([
-            'name'     => 'required|max:255',
+            'name'     => 'required',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:6',
-            'role'     => 'required|in:admin,petugas,owner',
-            'status'   => 'required|in:aktif,nonaktif'
+            'role'     => 'required',
+            'status'   => 'required'
         ]);
 
-        User::create([
+        $user = User::create([
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
@@ -43,60 +51,67 @@ class UserController extends Controller
             'status'   => $request->status
         ]);
 
-        return redirect()->route('people.index')
-            ->with('success', 'User berhasil ditambahkan');
+        // 🔥 SIMPAN LOG
+        LogAktivitas::create([
+            'id_user' => auth()->id(),
+            'aktivitas' => 'Menambahkan user: ' . $user->name,
+            'waktu_aktivitas' => now()
+        ]);
+
+        return back()->with('success', 'User berhasil ditambahkan');
     }
 
-    // 🔹 Form edit
-    public function edit($id)
-    {
-        $user = User::findOrFail($id);
-        return view('people.edit', compact('user'));
-    }
-
-    // 🔹 Update user
+    // ================== UPDATE USER ==================
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
 
         $request->validate([
-            'name'   => 'required|max:255',
-            'email'  => 'required|email|unique:users,email,' . $id,
-            'role'   => 'required|in:admin,petugas,owner',
-            'status' => 'required|in:aktif,nonaktif'
+            'name'   => 'required',
+            'email'  => 'required|email',
+            'status' => 'required'
         ]);
 
-        $data = [
-            'name'   => $request->name,
-            'email'  => $request->email,
-            'role'   => $request->role,
-            'status' => $request->status
-        ];
+        $user->name   = $request->name;
+        $user->email  = $request->email;
+        $user->status = $request->status;
 
-        // 🔹 Update password kalau diisi
-        if ($request->password) {
-            $data['password'] = Hash::make($request->password);
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
         }
 
-        $user->update($data);
+        $user->save();
 
-        return redirect()->route('people.index')
-            ->with('success', 'User berhasil diupdate');
+        // 🔥 SIMPAN LOG
+        LogAktivitas::create([
+            'id_user' => auth()->id(),
+            'aktivitas' => 'Mengedit user: ' . $user->name,
+            'waktu_aktivitas' => now()
+        ]);
+
+        return redirect()->route('people.index')->with('success', 'User berhasil diupdate');
     }
 
-    // 🔹 Hapus user
+    // ================== HAPUS USER ==================
     public function destroy($id)
     {
         $user = User::findOrFail($id);
 
-        // ❗ optional: cegah hapus diri sendiri
         if ($user->id == auth()->id()) {
             return back()->with('error', 'Tidak bisa hapus akun sendiri');
         }
 
+        $nama = $user->name; // simpan dulu sebelum delete
+
         $user->delete();
 
-        return redirect()->route('people.index')
-            ->with('success', 'User berhasil dihapus');
+        // 🔥 SIMPAN LOG
+        LogAktivitas::create([
+            'id_user' => auth()->id(),
+            'aktivitas' => 'Menghapus user: ' . $nama,
+            'waktu_aktivitas' => now()
+        ]);
+
+        return back()->with('success', 'User berhasil dihapus');
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\TarifController;
 use App\Http\Controllers\AreaController;
+use App\Http\Controllers\LogAktivitasController;
 
 // 🔥 Default halaman pertama
 Route::get('/', [AuthController::class, 'showLogin']);
@@ -24,15 +25,17 @@ Route::post('/register', [AuthController::class, 'register'])->name('register.po
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard')
     ->middleware('auth');
+
+Route::get('/log', [LogAktivitasController::class, 'index'])->name('log.index');
 // 🔹 USER
 
-Route::prefix('user')->group(function () {
-    Route::get('/', [UserController::class, 'index'])->name('user.index');
-    Route::get('/create', [UserController::class, 'create'])->name('user.create');
-    Route::post('/store', [UserController::class, 'store'])->name('user.store');
-    Route::get('/edit/{id}', [UserController::class, 'edit'])->name('user.edit');
-    Route::put('/update/{id}', [UserController::class, 'update'])->name('user.update');
-    Route::delete('/delete/{id}', [UserController::class, 'destroy'])->name('user.destroy');
+Route::prefix('people')->group(function () {
+    Route::get('/', [UserController::class, 'index'])->name('people.index');
+    Route::get('/create', [UserController::class, 'create'])->name('people.create');
+    Route::post('/store', [UserController::class, 'store'])->name('people.store');
+    Route::get('/edit/{id}', [UserController::class, 'edit'])->name('people.edit');
+    Route::put('/update/{id}', [UserController::class, 'update'])->name('people.update');
+    Route::delete('/delete/{id}', [UserController::class, 'destroy'])->name('people.destroy');
 });
 
 Route::prefix('kendaraan')->group(function () {
