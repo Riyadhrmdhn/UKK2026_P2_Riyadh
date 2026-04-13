@@ -560,65 +560,68 @@
                 <ul class="navbar-nav flex-column mb-3">
 
                 <!-- DASHBOARD TITLE -->
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('dashboard') }}">
-                    <div class="d-flex align-items-center">
-                        <span class="nav-link-icon"><i class="bi bi-speedometer"></i></span>
-                        <span class="nav-link-text ps-2">Dashboard</span>
-                    </div>
-                    </a>
-                </li>
+                  @if(auth()->user()->role == 'admin')
 
-                <!-- USER -->
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('people.index') }}">
-                    <div class="d-flex align-items-center">
-                        <span class="nav-link-icon"><i class="bi bi-people"></i></span>
-                        <span class="nav-link-text ps-2">Kelola User</span>
-                    </div>
-                    </a>
-                </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="{{ route('dashboard') }}">
+                      <div class="d-flex align-items-center">
+                          <span class="nav-link-icon"><i class="bi bi-speedometer"></i></span>
+                          <span class="nav-link-text ps-2">Dashboard</span>
+                      </div>
+                      </a>
+                  </li>
 
-                <!-- TARIF -->
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('tarif.index') }}">
-                    <div class="d-flex align-items-center">
-                        <span class="nav-link-icon"><i class="bi bi-cash-stack"></i></span>
-                        <span class="nav-link-text ps-2">Tarif</span>
-                    </div>
-                    </a>
-                </li>
+                  <!-- USER -->
+                  <li class="nav-item">
+                      <a class="nav-link" href="{{ route('people.index') }}">
+                      <div class="d-flex align-items-center">
+                          <span class="nav-link-icon"><i class="bi bi-people"></i></span>
+                          <span class="nav-link-text ps-2">Kelola User</span>
+                      </div>
+                      </a>
+                  </li>
 
-                <!-- KENDARAAN -->
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('kendaraan.index') }}">
-                    <div class="d-flex align-items-center">
-                        <span class="nav-link-icon"><i class="bi bi-car-front"></i></span>
-                        <span class="nav-link-text ps-2">Kendaraan</span>
-                    </div>
-                    </a>
-                </li>
+                  <!-- TARIF -->
+                  <li class="nav-item">
+                      <a class="nav-link" href="{{ route('tarif.index') }}">
+                      <div class="d-flex align-items-center">
+                          <span class="nav-link-icon"><i class="bi bi-cash-stack"></i></span>
+                          <span class="nav-link-text ps-2">Tarif</span>
+                      </div>
+                      </a>
+                  </li>
 
-                <!-- AREA -->
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('area.index') }}">
-                    <div class="d-flex align-items-center">
-                        <span class="nav-link-icon"><i class="bi bi-geo-alt"></i></span>
-                        <span class="nav-link-text ps-2">Area</span>
-                    </div>
-                    </a>
-                </li>
+                  <!-- KENDARAAN -->
+                  <li class="nav-item">
+                      <a class="nav-link" href="{{ route('kendaraan.index') }}">
+                      <div class="d-flex align-items-center">
+                          <span class="nav-link-icon"><i class="bi bi-car-front"></i></span>
+                          <span class="nav-link-text ps-2">Kendaraan</span>
+                      </div>
+                      </a>
+                  </li>
 
-                <!-- LOG -->
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('log.index') }}">
-                    <div class="d-flex align-items-center">
-                        <span class="nav-link-icon"><i class="bi bi-clock-history"></i></span>
-                        <span class="nav-link-text ps-2">Log Aktivitas</span>
-                    </div>
-                    </a>
-                </li>
+                  <!-- AREA -->
+                  <li class="nav-item">
+                      <a class="nav-link" href="{{ route('area.index') }}">
+                      <div class="d-flex align-items-center">
+                          <span class="nav-link-icon"><i class="bi bi-geo-alt"></i></span>
+                          <span class="nav-link-text ps-2">Area</span>
+                      </div>
+                      </a>
+                  </li>
 
+                  <!-- LOG -->
+                  <li class="nav-item">
+                      <a class="nav-link" href="{{ route('log.index') }}">
+                      <div class="d-flex align-items-center">
+                          <span class="nav-link-icon"><i class="bi bi-clock-history"></i></span>
+                          <span class="nav-link-text ps-2">Log Aktivitas</span>
+                      </div>
+                      </a>
+                  </li>
+
+                  @endif
                 </ul>
             </div>
           </div>
