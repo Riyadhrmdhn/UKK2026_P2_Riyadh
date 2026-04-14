@@ -49,4 +49,6 @@ class Area extends Model
     {
         return $this->terisi >= $this->kapasitas;
     }
+
+    
 }

@@ -85,6 +85,17 @@
                     <th>Aksi</th>
                 </tr>
             </thead>
+            @php
+                $hour = now()->format('H');
+
+                if ($hour >= 6 && $hour < 14) {
+                    $shiftSekarang = 'pagi';
+                } elseif ($hour >= 14 && $hour < 22) {
+                    $shiftSekarang = 'siang';
+                } else {
+                    $shiftSekarang = 'malam';
+                }
+            @endphp
             <tbody>
                 @foreach($petugas as $i => $user)
                 <tr>
@@ -92,9 +103,15 @@
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
                     <td>
-                        <span class="badge bg-info text-dark">
-                            {{ ucfirst($user->shift) }}
-                        </span>
+                        @if($user->shift === $shiftSekarang)
+                            <span class="badge bg-success">
+                                Aktif
+                            </span>
+                        @else
+                            <span class="badge bg-danger">
+                                Nonaktif
+                            </span>
+                        @endif
                     </td>
                     <td>
                         <span class="badge {{ $user->status=='aktif'?'bg-success':'bg-danger' }}">
@@ -347,6 +364,7 @@ function printTable(id) {
     win.document.close();
     win.print();
 }
+
 </script>
 
 @endsection

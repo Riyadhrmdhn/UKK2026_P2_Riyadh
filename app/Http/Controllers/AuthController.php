@@ -16,63 +16,41 @@ class AuthController extends Controller
     }
 
     // 🔹 Proses login
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
+        public function login(Request $request)
+        {
+            $credentials = $request->validate([
+                'email' => 'required|email',
+                'password' => 'required'
+            ]);
 
-        $user = User::where('email', $request->email)->first();
+            if (Auth::attempt($credentials, $request->remember)) {
 
-        // ❌ User tidak ditemukan
-        if (!$user) {
-            return back()->with('error', 'Email tidak ditemukan');
-        }
+                $user = Auth::user();
 
-        // ❌ Status nonaktif
-        if ($user->status !== 'aktif') {
-            return back()->with('error', 'Akun nonaktif');
-        }
+                // 🔥 CEK SHIFT PETUGAS
+                if ($user->role === 'petugas') {
 
-        // ❌ Password salah
-        if (!Hash::check($request->password, $user->password)) {
-            return back()->with('error', 'Password salah');
-        }
+                    $hour = now()->format('H');
 
-        // 🔥 CEK SHIFT KHUSUS PETUGAS
-        if ($user->role === 'petugas') {
+                    if ($hour >= 6 && $hour < 14) {
+                        $shiftAktif = 'pagi';
+                    } elseif ($hour >= 14 && $hour < 22) {
+                        $shiftAktif = 'siang';
+                    } else {
+                        $shiftAktif = 'malam';
+                    }
 
-            $hour = now()->format('H');
+                    if ($user->shift !== $shiftAktif) {
+                        Auth::logout();
+                        return back()->with('error', 'Shift anda sedang OFF');
+                    }
+                }
 
-            // 🔥 SHIFT REAL (06-14, 14-22, 22-06)
-            if ($hour >= 6 && $hour < 14) {
-                $shiftAktif = 0; // pagi
-            } elseif ($hour >= 14 && $hour < 22) {
-                $shiftAktif = 1; // siang
-            } else {
-                $shiftAktif = 2; // malam
+                return redirect()->route('dashboard');
             }
 
-            // ❌ kalau shift tidak sesuai
-            if ($user->shift != $shiftAktif) {
-                return back()->with('error', 'Shift anda sedang OFF');
-            }
+            return back()->with('error', 'Email atau password salah');
         }
-
-        // ✅ Login
-        Auth::login($user);
-
-        // 🔥 Redirect berdasarkan role
-        if ($user->role === 'admin') {
-            return redirect()->route('dashboard')->with('success', 'Login sebagai Admin');
-        } elseif ($user->role === 'owner') {
-            return redirect()->route('dashboard')->with('success', 'Login sebagai Owner');
-        } else {
-            return redirect()->route('dashboard')->with('success', 'Login sebagai Petugas');
-        }
-    }
-
     // 🔹 Tampilkan register
     public function showRegister()
     {

@@ -13,26 +13,43 @@ public function index()
 {
     $users = User::all();
 
-    $admin = $users->where('role', 'admin')->values();
-    $petugas = $users->where('role', 'petugas')->values();
-    $owner = $users->where('role', 'owner')->values();
-
     $hour = now()->format('H');
 
     if ($hour >= 6 && $hour < 14) {
-        $shiftAktif = 0;
+        $shiftSekarang = 'pagi';
     } elseif ($hour >= 14 && $hour < 22) {
-        $shiftAktif = 1;
+        $shiftSekarang = 'siang';
     } else {
-        $shiftAktif = 2;
+        $shiftSekarang = 'malam';
     }
+
+    foreach ($users as $user) {
+
+        if ($user->role === 'petugas') {
+
+            $statusBaru = ($user->shift === $shiftSekarang)
+                            ? 'aktif'
+                            : 'nonaktif';
+
+            if ($user->status !== $statusBaru) {
+                $user->update([
+                    'status' => $statusBaru
+                ]);
+            }
+        }
+    }
+
+    $users = User::all();
+
+    $admin = $users->where('role', 'admin')->values();
+    $petugas = $users->where('role', 'petugas')->values();
+    $owner = $users->where('role', 'owner')->values();
 
     return view('people.index', compact(
         'users',
         'admin',
         'petugas',
-        'owner',
-        'shiftAktif'
+        'owner'
     ));
 }
 
