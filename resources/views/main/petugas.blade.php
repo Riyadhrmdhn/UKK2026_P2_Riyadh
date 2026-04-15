@@ -21,33 +21,33 @@
                     </div>
                 </div>
             </div>
-            <!-- Masuk -->
+            {{-- TOTAL KENDARAAN MASUK --}}
             <div class="col-md-6 col-xxl-3">
-                <div class="card h-md-100">
+                <div class="card h-md-100 border-start border-primary border-4">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="mb-2">Masuk Hari Ini</h6>
+                            <h6 class="mb-2">Kendaraan Masuk</h6>
                             <h3 class="mb-0">{{ $masukHariIni }}</h3>
-                            <small class="text-500">Dari waktu_masuk</small>
+                            <small class="text-500">Hari ini</small>
                         </div>
                         <div>
-                            <i class="bi bi-box-arrow-in-right fs-2"></i>
+                            <i class="bi bi-box-arrow-in-right fs-2 text-primary"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Keluar -->
+            {{-- KENDARAAN KELUAR --}}
             <div class="col-md-6 col-xxl-3">
-                <div class="card h-md-100">
+                <div class="card h-md-100 border-start border-warning border-4">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="mb-2">Keluar Hari Ini</h6>
+                            <h6 class="mb-2">Kendaraan Keluar</h6>
                             <h3 class="mb-0">{{ $keluarHariIni }}</h3>
-                            <small class="text-500">Dari waktu_keluar</small>
+                            <small class="text-500">Hari ini</small>
                         </div>
                         <div>
-                            <i class="bi bi-box-arrow-in-left fs-2"></i>
+                            <i class="bi bi-box-arrow-in-left fs-2 text-warning"></i>
                         </div>
                     </div>
                 </div>

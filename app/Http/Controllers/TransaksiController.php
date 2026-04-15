@@ -7,41 +7,27 @@ use Carbon\Carbon;
 use App\Models\Transaksi;
 use App\Models\Kendaraan;
 use App\Models\Area;
-use App\Models\Tarif;
 
 class TransaksiController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | TAMPIL DATA
-    |--------------------------------------------------------------------------
-    */
     public function index()
     {
-        $transaksi = Transaksi::with([
-            'kendaraan',
-            'area',
-            'tarif'
-        ])
-        ->whereIn('status', ['parkir','keluar']) // 🔥 INI YANG PENTING
-        ->orderBy('id','desc')
-        ->get();
+        $transaksi = Transaksi::with(['kendaraan','area','tarif'])
+            ->whereIn('status', ['parkir','keluar'])
+            ->orderBy('id','desc')
+            ->get();
 
-        $kendaraan = Kendaraan::all();
-        $area      = Area::all();
+        // 🔥 Ambil semua kendaraan yang SUDAH PERNAH transaksi
+        $kendaraanTerpakai = Transaksi::pluck('id_kendaraan');
 
-        return view('transaksi.index', compact(
-            'transaksi',
-            'kendaraan',
-            'area'
-        ));
+        // 🔥 Tampilkan hanya yang BELUM PERNAH transaksi
+        $kendaraan = Kendaraan::whereNotIn('id', $kendaraanTerpakai)->get();
+
+        $area = Area::all();
+
+        return view('transaksi.index', compact('transaksi','kendaraan','area'));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | KENDARAAN MASUK
-    |--------------------------------------------------------------------------
-    */
     public function store(Request $request)
     {
         $request->validate([
@@ -49,9 +35,9 @@ class TransaksiController extends Controller
             'id_area' => 'required'
         ]);
 
-        // 🔎 Cek kendaraan masih parkir atau tidak
+        // ✅ Cek apakah kendaraan masih parkir
         $cekParkir = Transaksi::where('id_kendaraan', $request->id_kendaraan)
-                        ->where('status', 'parkir')
+                        ->whereNull('waktu_keluar')
                         ->exists();
 
         if ($cekParkir) {
@@ -61,38 +47,31 @@ class TransaksiController extends Controller
         $kendaraan = Kendaraan::findOrFail($request->id_kendaraan);
         $area = Area::findOrFail($request->id_area);
 
-        // 🔥 Cek kapasitas penuh
         if ($area->terisi >= $area->kapasitas) {
             return back()->with('error', 'Area parkir penuh!');
         }
 
-        // ✅ Tambah transaksi
         Transaksi::create([
             'id_kendaraan' => $request->id_kendaraan,
             'id_tarif'     => $kendaraan->id_tarif,
             'waktu_masuk'  => now(),
+            'waktu_keluar' => null,
             'status'       => 'parkir',
             'id_user'      => auth()->id(),
             'id_area'      => $request->id_area
         ]);
 
-        // 🔥 Tambah terisi
         $area->increment('terisi');
 
         return redirect()->route('transaksi.index')
-                ->with('success','Transaksi berhasil ditambahkan');
+            ->with('success','Transaksi berhasil ditambahkan');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | KENDARAAN KELUAR
-    |--------------------------------------------------------------------------
-    */
     public function keluar($id)
     {
-        $transaksi = Transaksi::findOrFail($id);
+        $transaksi = Transaksi::with('tarif')->findOrFail($id);
 
-        if ($transaksi->status != 'parkir') {
+        if ($transaksi->waktu_keluar != null) {
             return back()->with('error','Sudah diproses');
         }
 
@@ -111,38 +90,40 @@ class TransaksiController extends Controller
             'durasi_jam'   => floor($selisihMenit / 60),
             'durasi_menit' => $selisihMenit % 60,
             'biaya_total'  => round($totalBayar),
-            'status'       => 'keluar' // 🔥 BELUM SELESAI
+            'status'       => 'keluar'
         ]);
 
         return back()->with('success','Silakan lakukan pembayaran');
     }
-    /*
-    |--------------------------------------------------------------------------
-    | HAPUS
-    |--------------------------------------------------------------------------
-    */
+
     public function bayar($id)
     {
-        $transaksi = Transaksi::findOrFail($id);
+        $transaksi = Transaksi::with(['kendaraan','area'])->findOrFail($id);
 
-        if ($transaksi->status == 'Selesai') {
-            return back()->with('error','Sudah dibayar');
+        if ($transaksi->status != 'keluar') {
+            return back()->with('error','Belum diproses keluar');
         }
 
-        // 🔥 Tambah kapasitas kosong (kurangi terisi)
+        // Data struk
+        $data = [
+            'plat'   => $transaksi->kendaraan->plat_kendaraan,
+            'warna'  => $transaksi->kendaraan->warna,
+            'area'   => $transaksi->area->nama_area,
+            'masuk'  => $transaksi->waktu_masuk,
+            'keluar' => $transaksi->waktu_keluar,
+            'total'  => $transaksi->biaya_total,
+        ];
+
+        // Kurangi kapasitas
         $transaksi->area->decrement('terisi');
 
-        // 🔥 Simpan dulu id kendaraan sebelum transaksi dihapus
-        $idKendaraan = $transaksi->id_kendaraan;
+        // ✅ Update jadi selesai (tidak dihapus)
+        $transaksi->update([
+            'status' => 'selesai'
+        ]);
 
-        // 🔥 Hapus transaksi
-        $transaksi->delete();
+        session(['struk' => $data]);
 
-        // 🔥 Hapus kendaraan
-        Kendaraan::where('id', $idKendaraan)->delete();
-
-        return redirect()->route('transaksi.index')
-                ->with('success','Pembayaran berhasil, data dihapus');
+        return redirect('/struk');
     }
-
 }

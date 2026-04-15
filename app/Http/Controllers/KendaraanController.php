@@ -10,7 +10,18 @@ class KendaraanController extends Controller
 {
     public function index()
     {
-        $kendaraan = Kendaraan::with('tarif')->get();
+        /*
+        Tampilkan hanya kendaraan yang BELUM PERNAH punya transaksi
+        Jadi:
+        - Belum transaksi -> tampil
+        - Sudah parkir -> hilang
+        - Sudah bayar -> tetap hilang
+        */
+
+        $kendaraan = Kendaraan::whereDoesntHave('transaksi')
+            ->with('tarif')
+            ->get();
+
         $tarif = Tarif::all();
 
         return view('kendaraan.index', compact('kendaraan', 'tarif'));
@@ -24,18 +35,15 @@ class KendaraanController extends Controller
             'id_tarif' => 'required'
         ]);
 
-        $tarif = Tarif::findOrFail($request->id_tarif);
-
         Kendaraan::create([
             'plat_kendaraan' => $request->plat_kendaraan,
             'warna' => $request->warna,
-            'status' => null, // 🔥 FIX DI SINI
+            'id_tarif' => $request->id_tarif,
             'id_user' => auth()->id() ?? 1,
-            'id_tarif' => $tarif->id,
-            'created_at' => now()
         ]);
 
-        return back()->with('success', 'Kendaraan berhasil ditambahkan');
+        return redirect()->route('kendaraan.index')
+            ->with('success', 'Kendaraan berhasil ditambahkan');
     }
 
     public function update(Request $request, $id)
@@ -47,21 +55,22 @@ class KendaraanController extends Controller
         ]);
 
         $kendaraan = Kendaraan::findOrFail($id);
-        $tarif = Tarif::findOrFail($request->id_tarif);
 
         $kendaraan->update([
             'plat_kendaraan' => $request->plat_kendaraan,
             'warna' => $request->warna,
-            'id_tarif' => $tarif->id
+            'id_tarif' => $request->id_tarif
         ]);
 
-        return back()->with('success', 'Kendaraan berhasil diupdate');
+        return redirect()->route('kendaraan.index')
+            ->with('success', 'Kendaraan berhasil diupdate');
     }
 
     public function destroy($id)
     {
         Kendaraan::findOrFail($id)->delete();
 
-        return back()->with('success', 'Kendaraan berhasil dihapus');
+        return redirect()->route('kendaraan.index')
+            ->with('success', 'Kendaraan berhasil dihapus');
     }
-}
+}   

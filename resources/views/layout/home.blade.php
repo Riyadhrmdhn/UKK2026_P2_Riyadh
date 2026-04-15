@@ -616,10 +616,7 @@
                         </div>
                     </a>
                 </li>
-
                 @endif
-
-
                 {{-- ================= PETUGAS ================= --}}
                 @if(auth()->user()->role == 'petugas')
 
@@ -649,7 +646,27 @@
                         </div>
                     </a>
                 </li>
+                @endif        
+                {{-- ================= OWNER ================= --}}
+                @if(auth()->user()->role == 'owner')
 
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('dashboard') }}">
+                        <div class="d-flex align-items-center">
+                            <span class="nav-link-icon"><i class="bi bi-speedometer"></i></span>
+                            <span class="nav-link-text ps-2">Dashboard</span>
+                        </div>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('rekap.index') }}">
+                        <div class="d-flex align-items-center">
+                            <span class="nav-link-icon"><i class="bi bi-bar-chart"></i></span>
+                            <span class="nav-link-text ps-2">Rekap</span>
+                        </div>
+                    </a>
+                </li>
                 @endif
                 </ul>
             </div>

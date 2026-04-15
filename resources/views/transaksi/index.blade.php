@@ -22,18 +22,9 @@
                     <select name="id_kendaraan" class="form-control" required>
                         <option value="">-- Pilih Kendaraan --</option>
                         @foreach($kendaraan as $k)
-
-                        @php
-                            $sedangParkir = \App\Models\Transaksi::where('id_kendaraan', $k->id)
-                                                ->where('status', 'parkir')
-                                                ->exists();
-                        @endphp
-
-                        <option value="{{ $k->id }}" {{ $sedangParkir ? 'disabled' : '' }}>
-                            {{ $k->plat_kendaraan }} - {{ $k->warna }}
-                            {{ $sedangParkir ? '(Sedang Parkir)' : '' }}
-                        </option>
-
+                            <option value="{{ $k->id }}">
+                                {{ $k->plat_kendaraan }} - {{ $k->warna }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -70,7 +61,7 @@
     <div class="card-header d-flex justify-content-between">
         <h5>Data Transaksi Parkir</h5>
 
-        <button onclick="printTable('transaksiTable')" class="btn btn-success">
+       <button onclick="printTable('transaksiTable')" class="btn btn-success">
             <i class="bi bi-printer"></i>
         </button>
     </div>
@@ -235,122 +226,170 @@
     SCRIPT REALTIME
 ========================= --}}
 <script>
-function updateRealtime() {
+    function updateRealtime() {
 
-    // DURASI
-    document.querySelectorAll('.durasi').forEach(function(el) {
+        // DURASI
+        document.querySelectorAll('.durasi').forEach(function(el) {
 
-        let status = el.dataset.status;
-        let masuk = new Date(el.dataset.masuk);
-        let keluar = el.dataset.keluar ? new Date(el.dataset.keluar) : new Date();
+            let status = el.dataset.status;
+            let masuk = new Date(el.dataset.masuk);
+            let keluar;
 
-        if(status === 'Selesai') {
-            keluar = new Date(el.dataset.keluar);
-        }
+            // 🔥 FIX: kalau sudah keluar, pakai waktu keluar
+            if (status === 'keluar') {
+                keluar = new Date(el.dataset.keluar);
+            } else {
+                keluar = new Date();
+            }
 
-        let selisihMenit = Math.floor((keluar - masuk) / 60000);
-        let jam = Math.floor(selisihMenit / 60);
-        let menit = selisihMenit % 60;
+            let selisihMenit = Math.floor((keluar - masuk) / 60000);
+            let jam = Math.floor(selisihMenit / 60);
+            let menit = selisihMenit % 60;
 
-        el.innerHTML = jam + " Jam " + menit + " Menit";
+            el.innerHTML = jam + " Jam " + menit + " Menit";
+        });
+
+
+        // TOTAL BAYAR
+        document.querySelectorAll('.total-bayar').forEach(function(el) {
+
+            // 🔥 FIX: kalau sudah keluar, pakai total dari DB
+            if (el.dataset.status === 'keluar') {
+                el.innerHTML = "Rp " + parseInt(el.dataset.total).toLocaleString('id-ID');
+                return;
+            }
+
+            let waktuMasuk = new Date(el.dataset.masuk);
+            let sekarang = new Date();
+
+            let selisihMenit = Math.floor((sekarang - waktuMasuk) / 60000);
+            let tarifPerMenit = el.dataset.tarif / 60;
+
+            let total = Math.round(selisihMenit * tarifPerMenit);
+
+            el.innerHTML = "Rp " + total.toLocaleString('id-ID');
+        });
+    }
+
+    setInterval(updateRealtime, 10000);
+    updateRealtime();
+</script>
+
+<script>
+    var modalBayar = document.getElementById('modalBayar');
+
+    modalBayar.addEventListener('show.bs.modal', function (event) {
+
+        var button = event.relatedTarget;
+
+        var id = button.getAttribute('data-id');
+        var plat = button.getAttribute('data-plat');
+        var total = button.getAttribute('data-total');
+
+        document.getElementById('modalPlat').innerText = plat;
+        document.getElementById('modalTotal').innerText =
+            "Rp " + parseInt(total).toLocaleString('id-ID');
+
+        document.getElementById('formBayar').action =
+            "/transaksi/" + id + "/bayar";
+    });
+</script>
+
+<script>
+    var modalBayar = document.getElementById('modalBayar');
+    var totalGlobal = 0;
+
+    modalBayar.addEventListener('show.bs.modal', function (event) {
+
+        var button = event.relatedTarget;
+
+        var id = button.getAttribute('data-id');
+        var plat = button.getAttribute('data-plat');
+        var total = button.getAttribute('data-total');
+
+        totalGlobal = parseInt(total);
+
+        document.getElementById('modalPlat').innerText = plat;
+        document.getElementById('modalTotal').innerText =
+            "Rp " + totalGlobal.toLocaleString('id-ID');
+
+        document.getElementById('formBayar').action =
+            "/transaksi/" + id + "/bayar";
+
+        // reset input
+        document.getElementById('uangDibayar').value = "";
+        document.getElementById('kembalian').value = "";
+        document.getElementById('btnBayar').disabled = true;
     });
 
 
-    // TOTAL BAYAR
-    document.querySelectorAll('.total-bayar').forEach(function(el) {
+    // HITUNG KEMBALIAN
+    document.getElementById('uangDibayar').addEventListener('input', function() {
 
-        if (el.dataset.status === 'Selesai') {
-            el.innerHTML = "Rp " + parseInt(el.dataset.total).toLocaleString('id-ID');
+        let uang = parseInt(this.value);
+
+        if(isNaN(uang)) {
+            document.getElementById('kembalian').value = "";
+            document.getElementById('btnBayar').disabled = true;
             return;
         }
 
-        let waktuMasuk = new Date(el.dataset.masuk);
-        let sekarang = new Date();
+        let kembali = uang - totalGlobal;
 
-        let selisihMenit = Math.floor((sekarang - waktuMasuk) / 60000);
-        let tarifPerMenit = el.dataset.tarif / 60;
-
-        let total = Math.round(selisihMenit * tarifPerMenit);
-
-        el.innerHTML = "Rp " + total.toLocaleString('id-ID');
+        if(kembali >= 0) {
+            document.getElementById('kembalian').value =
+                "Rp " + kembali.toLocaleString('id-ID');
+            document.getElementById('btnBayar').disabled = false;
+        } else {
+            document.getElementById('kembalian').value =
+                "Uang kurang!";
+            document.getElementById('btnBayar').disabled = true;
+        }
     });
-}
-
-setInterval(updateRealtime, 10000); // update tiap 10 detik
-updateRealtime();
 </script>
 
 <script>
-var modalBayar = document.getElementById('modalBayar');
+    function printTable(id) {
+        let table = document.getElementById(id).cloneNode(true);
+        let headers = table.querySelectorAll("thead th");
+        let aksiIndex = -1;
 
-modalBayar.addEventListener('show.bs.modal', function (event) {
+        headers.forEach((th, index) => {
+            if (th.innerText.trim().toLowerCase() === 'aksi') {
+                aksiIndex = index;
+            }
+        });
 
-    var button = event.relatedTarget;
+        if (aksiIndex !== -1) {
+            table.querySelectorAll("tr").forEach(row => {
+                if (row.cells.length > aksiIndex) {
+                    row.deleteCell(aksiIndex);
+                }
+            });
+        }
 
-    var id = button.getAttribute('data-id');
-    var plat = button.getAttribute('data-plat');
-    var total = button.getAttribute('data-total');
-
-    document.getElementById('modalPlat').innerText = plat;
-    document.getElementById('modalTotal').innerText =
-        "Rp " + parseInt(total).toLocaleString('id-ID');
-
-    document.getElementById('formBayar').action =
-        "/transaksi/" + id + "/bayar";
-});
-</script>
-
-<script>
-var modalBayar = document.getElementById('modalBayar');
-var totalGlobal = 0;
-
-modalBayar.addEventListener('show.bs.modal', function (event) {
-
-    var button = event.relatedTarget;
-
-    var id = button.getAttribute('data-id');
-    var plat = button.getAttribute('data-plat');
-    var total = button.getAttribute('data-total');
-
-    totalGlobal = parseInt(total);
-
-    document.getElementById('modalPlat').innerText = plat;
-    document.getElementById('modalTotal').innerText =
-        "Rp " + totalGlobal.toLocaleString('id-ID');
-
-    document.getElementById('formBayar').action =
-        "/transaksi/" + id + "/bayar";
-
-    // reset input
-    document.getElementById('uangDibayar').value = "";
-    document.getElementById('kembalian').value = "";
-    document.getElementById('btnBayar').disabled = true;
-});
-
-
-// HITUNG KEMBALIAN
-document.getElementById('uangDibayar').addEventListener('input', function() {
-
-    let uang = parseInt(this.value);
-
-    if(isNaN(uang)) {
-        document.getElementById('kembalian').value = "";
-        document.getElementById('btnBayar').disabled = true;
-        return;
+        let win = window.open('', '', 'width=900,height=700');
+        win.document.write(`
+            <html>
+            <head>
+                <title>Print Transaksi</title>
+                <style>
+                    body { font-family: Arial; }
+                    table { width:100%; border-collapse: collapse; }
+                    table, th, td { border:1px solid black; }
+                    th, td { padding:8px; }
+                    h3 { text-align:center; }
+                </style>
+            </head>
+            <body>
+                <h3>Data Transaksi</h3>
+                ${table.outerHTML}
+            </body>
+            </html>
+        `);
+        win.document.close();
+        win.print();
     }
-
-    let kembali = uang - totalGlobal;
-
-    if(kembali >= 0) {
-        document.getElementById('kembalian').value =
-            "Rp " + kembali.toLocaleString('id-ID');
-        document.getElementById('btnBayar').disabled = false;
-    } else {
-        document.getElementById('kembalian').value =
-            "Uang kurang!";
-        document.getElementById('btnBayar').disabled = true;
-    }
-});
 </script>
 
 @endsection

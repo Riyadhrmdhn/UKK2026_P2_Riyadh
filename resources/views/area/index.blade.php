@@ -211,7 +211,7 @@ function printTable(id) {
     win.document.write(`
         <html>
         <head>
-            <title>Print Data User</title>
+            <title>Print Area</title>
             <style>
                 body { font-family: Arial; }
                 table { width:100%; border-collapse: collapse; }
@@ -221,7 +221,7 @@ function printTable(id) {
             </style>
         </head>
         <body>
-            <h3>Data User</h3>
+            <h3>Data Area</h3>
             ${table.outerHTML}
         </body>
         </html>

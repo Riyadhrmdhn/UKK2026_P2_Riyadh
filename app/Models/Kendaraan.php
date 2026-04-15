@@ -24,11 +24,17 @@ class Kendaraan extends Model
     ];
 
     protected $attributes = [
-        'status' => null, // 🔥 default NULL
+        'status' => null,
     ];
 
     public function tarif()
     {
         return $this->belongsTo(Tarif::class, 'id_tarif');
+    }
+
+    // ✅ TAMBAHAN RELASI INI
+    public function transaksi()
+    {
+        return $this->hasMany(\App\Models\Transaksi::class, 'id_kendaraan');
     }
 }

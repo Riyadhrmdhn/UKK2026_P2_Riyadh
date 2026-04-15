@@ -17,6 +17,7 @@ public function index()
 
     $role = auth()->user()->role;
 
+    // ================= ADMIN =================
     if ($role == 'admin') {
 
         $totalUser = User::count();
@@ -28,6 +29,7 @@ public function index()
         ));
     }
 
+    // ================= PETUGAS =================
     if ($role == 'petugas') {
 
         $today = now()->toDateString();
@@ -41,6 +43,29 @@ public function index()
         ));
     }
 
+    // ================= OWNER (🔥 BARU) =================
+    if ($role == 'owner') {
+
+        $today = now()->toDateString();
+
+        $masukHariIni = Transaksi::whereDate('waktu_masuk', $today)->count();
+
+        $keluarHariIni = Transaksi::whereDate('waktu_keluar', $today)->count();
+
+        $pendapatanHariIni = Transaksi::whereDate('waktu_keluar', $today)
+                                ->sum('biaya_total');
+
+        $parkirAktif = Transaksi::where('status', 'parkir')->count();
+
+        return view('main.owner', compact(
+            'masukHariIni',
+            'keluarHariIni',
+            'pendapatanHariIni',
+            'parkirAktif'
+        ));
+    }
+
     abort(403);
 }
+
 }
